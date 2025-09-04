@@ -71,7 +71,7 @@ export default function LeagueRecords({ records }: LeagueRecordsProps) {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {recordItems.map((item, index) => (
               <div
                 key={index}
@@ -86,10 +86,10 @@ export default function LeagueRecords({ records }: LeagueRecordsProps) {
                     {item.value}
                   </div>
                   <div className="font-medium text-gray-900">
-                    {item.record.team.name}
+                    {'team' in item.record ? item.record.team.name : item.record.winner.name}
                   </div>
                   <div className="text-sm text-gray-500">
-                    {item.record.team.owner}
+                    {'team' in item.record ? item.record.team.owner : item.record.winner.owner}
                   </div>
                   <div className="text-xs text-gray-400 mt-2">
                     {item.subtitle}

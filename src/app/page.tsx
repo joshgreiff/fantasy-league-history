@@ -109,27 +109,27 @@ export default function Home() {
       {/* Header */}
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="py-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-                  <Trophy className="h-8 w-8 text-yellow-500" />
-                  {leagueData.leagueInfo.name}
-                </h1>
-                <p className="text-gray-600 mt-1">League History Dashboard</p>
+                  <div className="py-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 flex items-center gap-2 sm:gap-3">
+                <Trophy className="h-6 w-6 sm:h-8 sm:w-8 text-yellow-500" />
+                <span className="truncate">{leagueData.leagueInfo.name}</span>
+              </h1>
+              <p className="text-gray-600 mt-1 text-sm sm:text-base">League History Dashboard</p>
+            </div>
+            <div className="flex items-center gap-3 sm:gap-4 text-xs sm:text-sm text-gray-600">
+              <div className="flex items-center gap-1">
+                <Calendar className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span>Season {leagueData.leagueInfo.season}</span>
               </div>
-              <div className="flex items-center gap-4 text-sm text-gray-600">
-                <div className="flex items-center gap-1">
-                  <Calendar className="h-4 w-4" />
-                  Season {leagueData.leagueInfo.season}
-                </div>
-                <div className="flex items-center gap-1">
-                  <Users className="h-4 w-4" />
-                  {leagueData.leagueInfo.totalTeams} Teams
-                </div>
+              <div className="flex items-center gap-1">
+                <Users className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span>{leagueData.leagueInfo.totalTeams} Teams</span>
               </div>
             </div>
           </div>
+        </div>
         </div>
       </div>
 
@@ -177,10 +177,10 @@ export default function Home() {
         </div>
 
         {/* Navigation Tabs */}
-        <div className="flex space-x-1 mb-8">
+        <div className="flex flex-col sm:flex-row gap-2 sm:space-x-1 sm:gap-0 mb-8">
           <button
             onClick={() => setActiveTab('standings')}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+            className={`px-3 sm:px-4 py-2 rounded-lg font-medium text-sm sm:text-base transition-colors ${
               activeTab === 'standings'
                 ? 'bg-blue-600 text-white'
                 : 'bg-white text-gray-600 hover:bg-gray-50'
@@ -190,7 +190,7 @@ export default function Home() {
           </button>
           <button
             onClick={() => setActiveTab('records')}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+            className={`px-3 sm:px-4 py-2 rounded-lg font-medium text-sm sm:text-base transition-colors ${
               activeTab === 'records'
                 ? 'bg-blue-600 text-white'
                 : 'bg-white text-gray-600 hover:bg-gray-50'
