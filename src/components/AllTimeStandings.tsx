@@ -103,7 +103,7 @@ export default function AllTimeStandings({ teams, stats }: AllTimeStandingsProps
               {sortedStats
                 .sort((a, b) => b.longestWinStreak - a.longestWinStreak)
                 .slice(0, 5)
-                .map((stat, index) => (
+                .map((stat) => (
                   <div key={stat.teamId} className="flex justify-between items-center">
                     <div>
                       <div className="font-medium">{stat.team?.name}</div>
@@ -131,7 +131,7 @@ export default function AllTimeStandings({ teams, stats }: AllTimeStandingsProps
               {sortedStats
                 .sort((a, b) => b.biggestWin - a.biggestWin)
                 .slice(0, 5)
-                .map((stat, index) => (
+                .map((stat) => (
                   <div key={stat.teamId} className="flex justify-between items-center">
                     <div>
                       <div className="font-medium">{stat.team?.name}</div>
@@ -159,7 +159,7 @@ export default function AllTimeStandings({ teams, stats }: AllTimeStandingsProps
               {sortedStats
                 .sort((a, b) => b.pointsLeftOnBench - a.pointsLeftOnBench)
                 .slice(0, 5)
-                .map((stat, index) => (
+                .map((stat) => (
                   <div key={stat.teamId} className="flex justify-between items-center">
                     <div>
                       <div className="font-medium">{stat.team?.name}</div>

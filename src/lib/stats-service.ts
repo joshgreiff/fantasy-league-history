@@ -1,4 +1,4 @@
-import { Team, Matchup, BoxScore, LeagueStats, RivalryStats, SeasonSummary } from '@/types/fantasy';
+import { Team, Matchup, BoxScore, RivalryStats, SeasonSummary } from '@/types/fantasy';
 import { calculateLeagueStats } from './utils';
 
 export class StatsService {

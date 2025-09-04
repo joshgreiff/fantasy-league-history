@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { FantasyLeagueClient } from '@/lib/espn-client';
 import { calculateLeagueStats } from '@/lib/utils';
 import { StatsService } from '@/lib/stats-service';
-import { Matchup } from '@/types/fantasy';
+import { Matchup, BoxScore } from '@/types/fantasy';
 
 export async function GET(request: NextRequest) {
   try {
@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
     const completedMatchups = schedule.filter((m: Matchup) => m.homeScore > 0 || m.awayScore > 0);
     const completedWeeks = [...new Set(completedMatchups.map((m: Matchup) => m.week))];
     
-    let allBoxScores: any[] = [];
+    const allBoxScores: BoxScore[] = [];
     
     // Fetch box scores for each completed week
     for (const week of completedWeeks.slice(0, 5)) { // Limit to first 5 weeks for demo

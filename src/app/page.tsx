@@ -5,7 +5,7 @@ import { Team, LeagueStats, LeagueHistory } from '@/types/fantasy';
 import AllTimeStandings from '@/components/AllTimeStandings';
 import LeagueRecords from '@/components/LeagueRecords';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Trophy, Users, Calendar, Settings, AlertCircle, Loader2 } from 'lucide-react';
+import { Trophy, Users, Calendar, AlertCircle, Loader2 } from 'lucide-react';
 
 interface LeagueData {
   leagueInfo: {

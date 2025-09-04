@@ -54,7 +54,7 @@ export interface Trade {
   teamToId: number;
   playersFrom: string[];
   playersTo: string[];
-  details: any;
+  details: Record<string, unknown>;
 }
 
 export interface Transaction {
@@ -64,7 +64,7 @@ export interface Transaction {
   teamId: number;
   type: 'ADD' | 'DROP' | 'TRADE' | 'WAIVER';
   playerName: string;
-  details: any;
+  details: Record<string, unknown>;
 }
 
 export interface LeagueStats {
