@@ -126,39 +126,38 @@ export async function GET(request: NextRequest) {
         }
 
         console.log(`📊 Total games collected: ${allMatchups.length} across ${seasonsData.length} seasons`);
+        console.log(`📊 Historical teams found: ${Array.from(teamHistoryMap.keys()).join(', ')}`);
         
-        // Create comprehensive team records that preserve historical names
-        const comprehensiveTeams = allTeams.map(currentTeam => {
-          const history = teamHistoryMap.get(currentTeam.id) || [];
-          const allNames = [...new Set(history.map(h => h.name))];
-          const allOwners = [...new Set(history.map(h => h.owner))];
+        // Create comprehensive team records including ALL historical teams (even those who left)
+        const allHistoricalTeamIds = Array.from(teamHistoryMap.keys());
+        const comprehensiveTeams = allHistoricalTeamIds.map(teamId => {
+          const history = teamHistoryMap.get(teamId) || [];
           
-          // Create a display name that shows historical context if there were changes
-          let displayName = currentTeam.name;
-          let displayOwner = currentTeam.owner;
-          
-          if (allNames.length > 1) {
-            // Show current name with historical context
-            const historicalNames = allNames.filter(name => name !== currentTeam.name);
-            if (historicalNames.length > 0) {
-              displayName = `${currentTeam.name} (formerly: ${historicalNames.join(', ')})`;
-            }
+          // Get the most recent team data for this ID, or use the last known data if they left
+          let teamData = allTeams.find(t => t.id === teamId);
+          if (!teamData && history.length > 0) {
+            // Team left the league - use their last known information
+            const lastKnownSeason = history[history.length - 1];
+            teamData = {
+              id: teamId,
+              name: lastKnownSeason.name,
+              owner: lastKnownSeason.owner,
+              abbreviation: lastKnownSeason.abbreviation
+            };
           }
           
-          if (allOwners.length > 1) {
-            const historicalOwners = allOwners.filter(owner => owner !== currentTeam.owner && !owner.startsWith('Owner '));
-            if (historicalOwners.length > 0) {
-              displayOwner = `${currentTeam.owner} (prev: ${historicalOwners.join(', ')})`;
-            }
-          }
+          // Ensure all required fields are present
+          if (!teamData) return null;
           
           return {
-            ...currentTeam,
-            name: displayName,
-            owner: displayOwner,
-            history: history
+            id: teamData.id,
+            name: teamData.name || `Team ${teamData.id}`,
+            owner: teamData.owner || `Owner ${teamData.id}`,
+            abbreviation: teamData.abbreviation || `T${teamData.id}`,
+            history: history,
+            isActive: !!allTeams.find(t => t.id === teamId) // Track if they're still in the league
           };
-        });
+        }).filter((team): team is NonNullable<typeof team> => team !== null); // Remove any invalid teams
         
         // Sort matchups by season and week for chronological order
         const completedMatchups = allMatchups.sort((a, b) => {
