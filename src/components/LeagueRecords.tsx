@@ -88,7 +88,7 @@ export default function LeagueRecords({ records }: LeagueRecordsProps) {
                   <div className="font-medium text-gray-900">
                     {'team' in item.record ? item.record.team.name : item.record.winner.name}
                   </div>
-                  <div className="text-sm text-gray-500">
+                  <div className="text-sm text-gray-700">
                     {'team' in item.record ? item.record.team.owner : item.record.winner.owner}
                   </div>
                   <div className="text-xs text-gray-400 mt-2">

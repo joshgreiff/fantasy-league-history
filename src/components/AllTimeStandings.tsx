@@ -40,15 +40,15 @@ export default function AllTimeStandings({ teams, stats }: AllTimeStandingsProps
             <table className="w-full text-xs sm:text-sm">
               <thead>
                 <tr className="border-b">
-                  <th className="text-left py-2 px-1 sm:px-3">Rank</th>
-                  <th className="text-left py-2 px-1 sm:px-3">Team</th>
-                  <th className="text-left py-2 px-1 sm:px-3">Record</th>
-                  <th className="text-left py-2 px-1 sm:px-3">Win %</th>
-                  <th className="text-left py-2 px-1 sm:px-3 hidden sm:table-cell">PF</th>
-                  <th className="text-left py-2 px-1 sm:px-3 hidden sm:table-cell">PA</th>
-                  <th className="text-left py-2 px-1 sm:px-3 hidden md:table-cell">Avg</th>
-                  <th className="text-left py-2 px-1 sm:px-3 hidden md:table-cell">High</th>
-                  <th className="text-left py-2 px-1 sm:px-3 hidden lg:table-cell">Low</th>
+                  <th className="text-left py-2 px-1 sm:px-3 text-gray-900 font-semibold">Rank</th>
+                  <th className="text-left py-2 px-1 sm:px-3 text-gray-900 font-semibold">Team</th>
+                  <th className="text-left py-2 px-1 sm:px-3 text-gray-900 font-semibold">Record</th>
+                  <th className="text-left py-2 px-1 sm:px-3 text-gray-900 font-semibold">Win %</th>
+                  <th className="text-left py-2 px-1 sm:px-3 hidden sm:table-cell text-gray-900 font-semibold">PF</th>
+                  <th className="text-left py-2 px-1 sm:px-3 hidden sm:table-cell text-gray-900 font-semibold">PA</th>
+                  <th className="text-left py-2 px-1 sm:px-3 hidden md:table-cell text-gray-900 font-semibold">Avg</th>
+                  <th className="text-left py-2 px-1 sm:px-3 hidden md:table-cell text-gray-900 font-semibold">High</th>
+                  <th className="text-left py-2 px-1 sm:px-3 hidden lg:table-cell text-gray-900 font-semibold">Low</th>
                 </tr>
               </thead>
               <tbody>
@@ -65,7 +65,7 @@ export default function AllTimeStandings({ teams, stats }: AllTimeStandingsProps
                         <div className="text-xs text-gray-500 hidden sm:block">{stat.team?.owner}</div>
                       </div>
                     </td>
-                    <td className="py-2 px-1 sm:px-3 font-mono text-xs sm:text-sm">
+                    <td className="py-2 px-1 sm:px-3 font-mono text-xs sm:text-sm text-gray-900">
                       {formatRecord(stat.wins, stat.losses, stat.ties)}
                     </td>
                     <td className="py-2 px-1 sm:px-3">
@@ -77,9 +77,9 @@ export default function AllTimeStandings({ teams, stats }: AllTimeStandingsProps
                         {stat.winPct.toFixed(1)}%
                       </span>
                     </td>
-                    <td className="py-2 px-1 sm:px-3 font-mono text-xs sm:text-sm hidden sm:table-cell">{formatScore(stat.pointsFor)}</td>
-                    <td className="py-2 px-1 sm:px-3 font-mono text-xs sm:text-sm hidden sm:table-cell">{formatScore(stat.pointsAgainst)}</td>
-                    <td className="py-2 px-1 sm:px-3 font-mono text-xs sm:text-sm hidden md:table-cell">{formatScore(stat.averageScore)}</td>
+                    <td className="py-2 px-1 sm:px-3 font-mono text-xs sm:text-sm text-gray-900 hidden sm:table-cell">{formatScore(stat.pointsFor)}</td>
+                    <td className="py-2 px-1 sm:px-3 font-mono text-xs sm:text-sm text-gray-900 hidden sm:table-cell">{formatScore(stat.pointsAgainst)}</td>
+                    <td className="py-2 px-1 sm:px-3 font-mono text-xs sm:text-sm text-gray-900 hidden md:table-cell">{formatScore(stat.averageScore)}</td>
                     <td className="py-2 px-1 sm:px-3 font-mono text-xs sm:text-sm text-green-600 hidden md:table-cell">{formatScore(stat.highestScore)}</td>
                     <td className="py-2 px-1 sm:px-3 font-mono text-xs sm:text-sm text-red-600 hidden lg:table-cell">{formatScore(stat.lowestScore)}</td>
                   </tr>
@@ -106,12 +106,12 @@ export default function AllTimeStandings({ teams, stats }: AllTimeStandingsProps
                 .map((stat) => (
                   <div key={stat.teamId} className="flex justify-between items-center">
                     <div>
-                      <div className="font-medium">{stat.team?.name}</div>
-                      <div className="text-xs text-gray-500">{stat.team?.owner}</div>
+                      <div className="font-medium text-gray-900">{stat.team?.name}</div>
+                      <div className="text-xs text-gray-700">{stat.team?.owner}</div>
                     </div>
                     <div className="text-right">
                       <div className="font-bold text-green-600">{stat.longestWinStreak}</div>
-                      <div className="text-xs text-gray-500">games</div>
+                      <div className="text-xs text-gray-700">games</div>
                     </div>
                   </div>
                 ))}
@@ -134,12 +134,12 @@ export default function AllTimeStandings({ teams, stats }: AllTimeStandingsProps
                 .map((stat) => (
                   <div key={stat.teamId} className="flex justify-between items-center">
                     <div>
-                      <div className="font-medium">{stat.team?.name}</div>
-                      <div className="text-xs text-gray-500">{stat.team?.owner}</div>
+                      <div className="font-medium text-gray-900">{stat.team?.name}</div>
+                      <div className="text-xs text-gray-700">{stat.team?.owner}</div>
                     </div>
                     <div className="text-right">
                       <div className="font-bold text-blue-600">{formatScore(stat.biggestWin)}</div>
-                      <div className="text-xs text-gray-500">margin</div>
+                      <div className="text-xs text-gray-700">margin</div>
                     </div>
                   </div>
                 ))}
@@ -162,12 +162,12 @@ export default function AllTimeStandings({ teams, stats }: AllTimeStandingsProps
                 .map((stat) => (
                   <div key={stat.teamId} className="flex justify-between items-center">
                     <div>
-                      <div className="font-medium">{stat.team?.name}</div>
-                      <div className="text-xs text-gray-500">{stat.team?.owner}</div>
+                      <div className="font-medium text-gray-900">{stat.team?.name}</div>
+                      <div className="text-xs text-gray-700">{stat.team?.owner}</div>
                     </div>
                     <div className="text-right">
                       <div className="font-bold text-orange-600">{formatScore(stat.pointsLeftOnBench)}</div>
-                      <div className="text-xs text-gray-500">points</div>
+                      <div className="text-xs text-gray-700">points</div>
                     </div>
                   </div>
                 ))}
