@@ -15,9 +15,10 @@ export async function GET(request: NextRequest) {
     const hasESPNCredentials = leagueId && espnS2 && swid;
 
     console.log('Environment check:', {
-      leagueId: leagueId ? 'SET' : 'NOT SET',
-      espnS2: espnS2 ? 'SET' : 'NOT SET', 
-      swid: swid ? 'SET' : 'NOT SET',
+      leagueId: leagueId ? `SET (${leagueId})` : 'NOT SET',
+      espnS2: espnS2 ? `SET (${espnS2.length} chars)` : 'NOT SET', 
+      swid: swid ? `SET (${swid.length} chars)` : 'NOT SET',
+      season: season ? `SET (${season})` : 'NOT SET',
       hasCredentials: hasESPNCredentials
     });
 
@@ -81,7 +82,13 @@ export async function GET(request: NextRequest) {
         console.log('Successfully loaded real ESPN data!');
         return NextResponse.json(response);
       } catch (espnError) {
-        console.error('ESPN API failed, falling back to demo data:', espnError);
+        console.error('ESPN API Error Details:', {
+          message: espnError instanceof Error ? espnError.message : 'Unknown error',
+          stack: espnError instanceof Error ? espnError.stack : undefined,
+          type: typeof espnError,
+          error: espnError
+        });
+        console.error('ESPN API failed, falling back to demo data');
         // Fall through to demo data
       }
     }
