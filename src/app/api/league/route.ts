@@ -48,17 +48,50 @@ export async function GET(request: NextRequest) {
         });
 
         // Use the already-filtered completed matchups from transformed data
-        const completedMatchups = transformedData.schedule;
+        let completedMatchups = transformedData.schedule;
+        let dataFromSeason = season;
         
-        // Calculate statistics using transformed data
+        // If no games in current season, try to get data from previous season
+        if (completedMatchups.length === 0 && season >= 2024) {
+          console.log(`No games found in ${season}, trying ${season - 1}...`);
+          try {
+            const prevSeasonClient = new DirectESPNClient(leagueId, season - 1, espnS2, swid);
+            const [prevLeagueInfo, prevTeams, prevSchedule] = await Promise.all([
+              prevSeasonClient.getLeagueInfo(),
+              prevSeasonClient.getTeams(),
+              prevSeasonClient.getSchedule()
+            ]);
+
+            const prevTransformedData = transformESPNData({
+              leagueInfo: prevLeagueInfo,
+              teams: prevTeams,
+              schedule: prevSchedule,
+              boxScores: []
+            });
+
+            if (prevTransformedData.schedule.length > 0) {
+              console.log(`Found ${prevTransformedData.schedule.length} games from ${season - 1}`);
+              completedMatchups = prevTransformedData.schedule;
+              dataFromSeason = season - 1;
+              // Update teams with current season teams but use previous season's data for stats
+            }
+          } catch (prevSeasonError) {
+            console.log(`Failed to get ${season - 1} data:`, prevSeasonError);
+          }
+        }
+        
+        // Calculate statistics using the best available data
         const leagueStats = calculateLeagueStats(transformedData.teams, completedMatchups, []);
         const { StatsService } = await import('@/lib/stats-service');
         const rivalries = StatsService.calculateRivalries(transformedData.teams, completedMatchups);
-        const seasonSummary = StatsService.calculateSeasonSummary(season, transformedData.teams, completedMatchups, []);
+        const seasonSummary = StatsService.calculateSeasonSummary(dataFromSeason, transformedData.teams, completedMatchups, []);
         const records = StatsService.findLeagueRecords(transformedData.teams, completedMatchups, []);
 
         const response = {
-          leagueInfo: transformedData.leagueInfo,
+          leagueInfo: {
+            ...transformedData.leagueInfo,
+            dataFromSeason: dataFromSeason !== season ? dataFromSeason : undefined
+          },
           teams: transformedData.teams,
           schedule: completedMatchups,
           boxScores: [],
