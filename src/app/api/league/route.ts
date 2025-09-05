@@ -14,6 +14,13 @@ export async function GET(request: NextRequest) {
     // Check if we have real ESPN credentials
     const hasESPNCredentials = leagueId && espnS2 && swid;
 
+    console.log('Environment check:', {
+      leagueId: leagueId ? 'SET' : 'NOT SET',
+      espnS2: espnS2 ? 'SET' : 'NOT SET', 
+      swid: swid ? 'SET' : 'NOT SET',
+      hasCredentials: hasESPNCredentials
+    });
+
     if (hasESPNCredentials) {
       console.log('Attempting to use real ESPN data...');
       

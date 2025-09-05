@@ -55,14 +55,14 @@ export default function AllTimeStandings({ teams, stats }: AllTimeStandingsProps
                 {sortedStats.map((stat, index) => (
                   <tr key={stat.teamId} className="border-b hover:bg-gray-50">
                     <td className="py-2 px-1 sm:px-3">
-                      <span className="font-medium text-xs sm:text-sm">
+                      <span className="font-medium text-xs sm:text-sm text-gray-900">
                         {index + 1}{getRankSuffix(index + 1)}
                       </span>
                     </td>
                     <td className="py-2 px-1 sm:px-3">
                       <div>
-                        <div className="font-medium text-xs sm:text-sm truncate max-w-[120px] sm:max-w-none">{stat.team?.name}</div>
-                        <div className="text-xs text-gray-500 hidden sm:block">{stat.team?.owner}</div>
+                        <div className="font-medium text-xs sm:text-sm text-gray-900 truncate max-w-[120px] sm:max-w-none">{stat.team?.name}</div>
+                        <div className="text-xs text-gray-700 hidden sm:block">{stat.team?.owner}</div>
                       </div>
                     </td>
                     <td className="py-2 px-1 sm:px-3 font-mono text-xs sm:text-sm text-gray-900">
