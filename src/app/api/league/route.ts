@@ -54,6 +54,7 @@ export async function GET(request: NextRequest) {
         const allMatchups: Matchup[] = [];
         let allTeams = transformedData.teams;
         const seasonsData: Array<{season: number; games: number; teams: number}> = [];
+        const teamHistoryMap = new Map<number, Array<{season: number; name: string; owner: string; abbreviation: string}>>();
         const startYear = 2018;
         
         // Determine which seasons to fetch
@@ -90,6 +91,19 @@ export async function GET(request: NextRequest) {
                members: yearMembers
              });
 
+            // Store team history for this season
+            yearTransformedData.teams.forEach(team => {
+              if (!teamHistoryMap.has(team.id)) {
+                teamHistoryMap.set(team.id, []);
+              }
+              teamHistoryMap.get(team.id)!.push({
+                season: year,
+                name: team.name,
+                owner: team.owner,
+                abbreviation: team.abbreviation
+              });
+            });
+
             if (yearTransformedData.schedule.length > 0) {
               console.log(`✓ ${year}: Found ${yearTransformedData.schedule.length} games`);
               allMatchups.push(...yearTransformedData.schedule);
@@ -113,6 +127,39 @@ export async function GET(request: NextRequest) {
 
         console.log(`📊 Total games collected: ${allMatchups.length} across ${seasonsData.length} seasons`);
         
+        // Create comprehensive team records that preserve historical names
+        const comprehensiveTeams = allTeams.map(currentTeam => {
+          const history = teamHistoryMap.get(currentTeam.id) || [];
+          const allNames = [...new Set(history.map(h => h.name))];
+          const allOwners = [...new Set(history.map(h => h.owner))];
+          
+          // Create a display name that shows historical context if there were changes
+          let displayName = currentTeam.name;
+          let displayOwner = currentTeam.owner;
+          
+          if (allNames.length > 1) {
+            // Show current name with historical context
+            const historicalNames = allNames.filter(name => name !== currentTeam.name);
+            if (historicalNames.length > 0) {
+              displayName = `${currentTeam.name} (formerly: ${historicalNames.join(', ')})`;
+            }
+          }
+          
+          if (allOwners.length > 1) {
+            const historicalOwners = allOwners.filter(owner => owner !== currentTeam.owner && !owner.startsWith('Owner '));
+            if (historicalOwners.length > 0) {
+              displayOwner = `${currentTeam.owner} (prev: ${historicalOwners.join(', ')})`;
+            }
+          }
+          
+          return {
+            ...currentTeam,
+            name: displayName,
+            owner: displayOwner,
+            history: history
+          };
+        });
+        
         // Sort matchups by season and week for chronological order
         const completedMatchups = allMatchups.sort((a, b) => {
           if (a.season !== b.season) return a.season - b.season;
@@ -120,11 +167,11 @@ export async function GET(request: NextRequest) {
         });
         
         // Calculate statistics using all historical data
-        const leagueStats = calculateLeagueStats(allTeams, completedMatchups, []);
+        const leagueStats = calculateLeagueStats(comprehensiveTeams, completedMatchups, []);
         const { StatsService } = await import('@/lib/stats-service');
-        const rivalries = StatsService.calculateRivalries(allTeams, completedMatchups);
-        const seasonSummary = StatsService.calculateSeasonSummary(season, allTeams, completedMatchups, []);
-        const records = StatsService.findLeagueRecords(allTeams, completedMatchups, []);
+        const rivalries = StatsService.calculateRivalries(comprehensiveTeams, completedMatchups);
+        const seasonSummary = StatsService.calculateSeasonSummary(season, comprehensiveTeams, completedMatchups, []);
+        const records = StatsService.findLeagueRecords(comprehensiveTeams, completedMatchups, []);
 
         const response = {
           leagueInfo: {
@@ -133,7 +180,7 @@ export async function GET(request: NextRequest) {
             seasonsData: seasonsData,
             dataRange: `${startYear}-${season}`
           },
-          teams: allTeams,
+          teams: comprehensiveTeams,
           schedule: completedMatchups,
           boxScores: [],
           stats: {
