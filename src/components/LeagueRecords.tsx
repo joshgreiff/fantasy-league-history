@@ -79,7 +79,7 @@ export default function LeagueRecords({ records }: LeagueRecordsProps) {
               >
                 <div className="flex items-center gap-2 mb-2">
                   {item.icon}
-                  <h3 className="font-semibold text-sm">{item.title}</h3>
+                  <h3 className="font-semibold text-sm text-gray-900">{item.title}</h3>
                 </div>
                 <div className="space-y-1">
                   <div className={`text-2xl font-bold ${item.color}`}>

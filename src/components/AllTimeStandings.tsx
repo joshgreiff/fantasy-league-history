@@ -36,14 +36,14 @@ export default function AllTimeStandings({ teams, stats }: AllTimeStandingsProps
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="overflow-x-auto">
-            <table className="w-full text-xs sm:text-sm">
+          <div className="overflow-x-auto -mx-4 sm:mx-0">
+            <table className="w-full min-w-[600px] text-xs sm:text-sm">
               <thead>
                 <tr className="border-b">
-                  <th className="text-left py-2 px-1 sm:px-3 text-gray-900 font-semibold">Rank</th>
-                  <th className="text-left py-2 px-1 sm:px-3 text-gray-900 font-semibold">Team</th>
-                  <th className="text-left py-2 px-1 sm:px-3 text-gray-900 font-semibold">Record</th>
-                  <th className="text-left py-2 px-1 sm:px-3 text-gray-900 font-semibold">Win %</th>
+                  <th className="text-left py-2 px-2 sm:px-3 text-gray-900 font-semibold">Rank</th>
+                  <th className="text-left py-2 px-2 sm:px-3 text-gray-900 font-semibold">Team</th>
+                  <th className="text-left py-2 px-2 sm:px-3 text-gray-900 font-semibold">Record</th>
+                  <th className="text-left py-2 px-2 sm:px-3 text-gray-900 font-semibold">Win %</th>
                   <th className="text-left py-2 px-1 sm:px-3 hidden sm:table-cell text-gray-900 font-semibold">PF</th>
                   <th className="text-left py-2 px-1 sm:px-3 hidden sm:table-cell text-gray-900 font-semibold">PA</th>
                   <th className="text-left py-2 px-1 sm:px-3 hidden md:table-cell text-gray-900 font-semibold">Avg</th>
@@ -54,21 +54,21 @@ export default function AllTimeStandings({ teams, stats }: AllTimeStandingsProps
               <tbody>
                 {sortedStats.map((stat, index) => (
                   <tr key={stat.teamId} className="border-b hover:bg-gray-50">
-                    <td className="py-2 px-1 sm:px-3">
+                    <td className="py-2 px-2 sm:px-3">
                       <span className="font-medium text-xs sm:text-sm text-gray-900">
                         {index + 1}{getRankSuffix(index + 1)}
                       </span>
                     </td>
-                    <td className="py-2 px-1 sm:px-3">
+                    <td className="py-2 px-2 sm:px-3">
                       <div>
                         <div className="font-medium text-xs sm:text-sm text-gray-900 truncate max-w-[120px] sm:max-w-none">{stat.team?.name}</div>
                         <div className="text-xs text-gray-700 hidden sm:block">{stat.team?.owner}</div>
                       </div>
                     </td>
-                    <td className="py-2 px-1 sm:px-3 font-mono text-xs sm:text-sm text-gray-900">
+                    <td className="py-2 px-2 sm:px-3 font-mono text-xs sm:text-sm text-gray-900">
                       {formatRecord(stat.wins, stat.losses, stat.ties)}
                     </td>
-                    <td className="py-2 px-1 sm:px-3">
+                    <td className="py-2 px-2 sm:px-3">
                       <span className={`font-medium text-xs sm:text-sm ${
                         stat.winPct >= 60 ? 'text-green-600' :
                         stat.winPct >= 50 ? 'text-yellow-600' :
