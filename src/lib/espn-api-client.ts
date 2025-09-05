@@ -82,6 +82,29 @@ export class DirectESPNClient {
     return data.teams || [];
   }
 
+  async getMembers(): Promise<any[]> {
+    // Try multiple views to get member data
+    try {
+      const data = await this.makeRequest('', { view: 'mRoster' });
+      console.log('ESPN Members data (mRoster):', JSON.stringify(data.members || [], null, 2));
+      if (data.members && data.members.length > 0) {
+        return data.members;
+      }
+    } catch (error) {
+      console.log('mRoster view failed, trying alternative...');
+    }
+    
+    // Try alternative view
+    try {
+      const data = await this.makeRequest('', { view: 'mTeam,mRoster' });
+      console.log('ESPN Members data (mTeam,mRoster):', JSON.stringify(data.members || [], null, 2));
+      return data.members || [];
+    } catch (error) {
+      console.log('Alternative member fetch failed:', error);
+      return [];
+    }
+  }
+
   async getSchedule(weeks?: number[]): Promise<ESPNMatchup[]> {
     const params: Record<string, unknown> = { view: 'mMatchup' };
     
@@ -113,16 +136,40 @@ export function transformESPNData(espnData: {
   teams: ESPNTeam[];
   schedule: ESPNMatchup[];
   boxScores: unknown[];
+  members?: any[];
 }) {
-  const { leagueInfo, teams, schedule } = espnData;
+  const { leagueInfo, teams, schedule, members = [] } = espnData;
+
+  // Create a map of owner GUIDs to real names
+  const ownerMap = new Map();
+  members.forEach(member => {
+    if (member.id && (member.displayName || member.firstName || member.lastName)) {
+      const name = member.displayName || 
+        `${member.firstName || ''} ${member.lastName || ''}`.trim() || 
+        `Member ${member.id}`;
+      ownerMap.set(member.id, name);
+    }
+  });
 
   // Transform teams
-  const transformedTeams = teams.map(team => ({
-    id: team.id,
-    name: team.name || `Team ${team.id}`,
-    owner: `Owner ${team.id}`, // ESPN doesn't provide owner names in basic API, just GUIDs
-    abbreviation: team.abbrev || team.name?.substring(0, 3).toUpperCase() || `T${team.id}`
-  }));
+  const transformedTeams = teams.map(team => {
+    // Get the primary owner's real name
+    const primaryOwnerId = team.primaryOwner || team.owners?.[0];
+    let ownerName = `Owner ${team.id}`;
+    
+    if (primaryOwnerId) {
+      // Remove curly braces from GUID if present
+      const cleanOwnerId = primaryOwnerId.replace(/[{}]/g, '');
+      ownerName = ownerMap.get(cleanOwnerId) || ownerMap.get(primaryOwnerId) || ownerName;
+    }
+
+    return {
+      id: team.id,
+      name: team.name || `Team ${team.id}`,
+      owner: ownerName,
+      abbreviation: team.abbrev || team.name?.substring(0, 3).toUpperCase() || `T${team.id}`
+    };
+  });
 
   // Transform schedule - only include completed matchups with scores
   const transformedSchedule = schedule

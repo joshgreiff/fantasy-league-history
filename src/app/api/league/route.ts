@@ -34,10 +34,11 @@ export async function GET(request: NextRequest) {
         const client = new DirectESPNClient(leagueId, season, espnS2, swid);
 
         // Fetch basic league data from ESPN
-        const [leagueInfo, teams, schedule] = await Promise.all([
+        const [leagueInfo, teams, schedule, members] = await Promise.all([
           client.getLeagueInfo(),
           client.getTeams(),
-          client.getSchedule()
+          client.getSchedule(),
+          client.getMembers().catch(() => [])
         ]);
 
         // Transform ESPN data to our format
@@ -45,7 +46,8 @@ export async function GET(request: NextRequest) {
           leagueInfo,
           teams,
           schedule,
-          boxScores: []
+          boxScores: [],
+          members
         });
 
         // Fetch data from multiple seasons (2018-2025) for complete league history
@@ -71,20 +73,22 @@ export async function GET(request: NextRequest) {
         // Fetch data from each requested season
         for (const year of seasonsToFetch) {
           try {
-            console.log(`Fetching ${year} season...`);
-            const yearClient = new DirectESPNClient(leagueId, year, espnS2, swid);
-            const [yearLeagueInfo, yearTeams, yearSchedule] = await Promise.all([
-              yearClient.getLeagueInfo(),
-              yearClient.getTeams(),
-              yearClient.getSchedule()
-            ]);
+                         console.log(`Fetching ${year} season...`);
+             const yearClient = new DirectESPNClient(leagueId, year, espnS2, swid);
+             const [yearLeagueInfo, yearTeams, yearSchedule, yearMembers] = await Promise.all([
+               yearClient.getLeagueInfo(),
+               yearClient.getTeams(),
+               yearClient.getSchedule(),
+               yearClient.getMembers().catch(() => []) // Members might not be available for older seasons
+             ]);
 
-            const yearTransformedData = transformESPNData({
-              leagueInfo: yearLeagueInfo,
-              teams: yearTeams,
-              schedule: yearSchedule,
-              boxScores: []
-            });
+                         const yearTransformedData = transformESPNData({
+               leagueInfo: yearLeagueInfo,
+               teams: yearTeams,
+               schedule: yearSchedule,
+               boxScores: [],
+               members: yearMembers
+             });
 
             if (yearTransformedData.schedule.length > 0) {
               console.log(`✓ ${year}: Found ${yearTransformedData.schedule.length} games`);
