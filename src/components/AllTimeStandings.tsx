@@ -44,11 +44,11 @@ export default function AllTimeStandings({ teams, stats }: AllTimeStandingsProps
                   <th className="text-left py-2 px-2 sm:px-3 text-gray-900 font-semibold">Team</th>
                   <th className="text-left py-2 px-2 sm:px-3 text-gray-900 font-semibold">Record</th>
                   <th className="text-left py-2 px-2 sm:px-3 text-gray-900 font-semibold">Win %</th>
-                  <th className="text-left py-2 px-1 sm:px-3 hidden sm:table-cell text-gray-900 font-semibold">PF</th>
-                  <th className="text-left py-2 px-1 sm:px-3 hidden sm:table-cell text-gray-900 font-semibold">PA</th>
-                  <th className="text-left py-2 px-1 sm:px-3 hidden md:table-cell text-gray-900 font-semibold">Avg</th>
-                  <th className="text-left py-2 px-1 sm:px-3 hidden md:table-cell text-gray-900 font-semibold">High</th>
-                  <th className="text-left py-2 px-1 sm:px-3 hidden lg:table-cell text-gray-900 font-semibold">Low</th>
+                  <th className="text-left py-2 px-2 sm:px-3 text-gray-900 font-semibold">PF</th>
+                  <th className="text-left py-2 px-2 sm:px-3 text-gray-900 font-semibold">PA</th>
+                  <th className="text-left py-2 px-2 sm:px-3 text-gray-900 font-semibold">Avg</th>
+                  <th className="text-left py-2 px-2 sm:px-3 text-gray-900 font-semibold">High</th>
+                  <th className="text-left py-2 px-2 sm:px-3 text-gray-900 font-semibold">Low</th>
                 </tr>
               </thead>
               <tbody>
@@ -77,11 +77,11 @@ export default function AllTimeStandings({ teams, stats }: AllTimeStandingsProps
                         {stat.winPct.toFixed(1)}%
                       </span>
                     </td>
-                    <td className="py-2 px-1 sm:px-3 font-mono text-xs sm:text-sm text-gray-900 hidden sm:table-cell">{formatScore(stat.pointsFor)}</td>
-                    <td className="py-2 px-1 sm:px-3 font-mono text-xs sm:text-sm text-gray-900 hidden sm:table-cell">{formatScore(stat.pointsAgainst)}</td>
-                    <td className="py-2 px-1 sm:px-3 font-mono text-xs sm:text-sm text-gray-900 hidden md:table-cell">{formatScore(stat.averageScore)}</td>
-                    <td className="py-2 px-1 sm:px-3 font-mono text-xs sm:text-sm text-green-600 hidden md:table-cell">{formatScore(stat.highestScore)}</td>
-                    <td className="py-2 px-1 sm:px-3 font-mono text-xs sm:text-sm text-red-600 hidden lg:table-cell">{formatScore(stat.lowestScore)}</td>
+                    <td className="py-2 px-2 sm:px-3 font-mono text-xs sm:text-sm text-gray-900">{formatScore(stat.pointsFor)}</td>
+                    <td className="py-2 px-2 sm:px-3 font-mono text-xs sm:text-sm text-gray-900">{formatScore(stat.pointsAgainst)}</td>
+                    <td className="py-2 px-2 sm:px-3 font-mono text-xs sm:text-sm text-gray-900">{formatScore(stat.averageScore)}</td>
+                    <td className="py-2 px-2 sm:px-3 font-mono text-xs sm:text-sm text-green-600">{formatScore(stat.highestScore)}</td>
+                    <td className="py-2 px-2 sm:px-3 font-mono text-xs sm:text-sm text-red-600">{formatScore(stat.lowestScore)}</td>
                   </tr>
                 ))}
               </tbody>
