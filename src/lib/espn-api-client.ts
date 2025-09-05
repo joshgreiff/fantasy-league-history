@@ -82,7 +82,7 @@ export class DirectESPNClient {
     return data.teams || [];
   }
 
-  async getMembers(): Promise<any[]> {
+  async getMembers(): Promise<unknown[]> {
     // Try multiple views to get member data
     try {
       const data = await this.makeRequest('', { view: 'mRoster' });
@@ -90,7 +90,7 @@ export class DirectESPNClient {
       if (data.members && data.members.length > 0) {
         return data.members;
       }
-    } catch (error) {
+    } catch {
       console.log('mRoster view failed, trying alternative...');
     }
     
@@ -136,18 +136,19 @@ export function transformESPNData(espnData: {
   teams: ESPNTeam[];
   schedule: ESPNMatchup[];
   boxScores: unknown[];
-  members?: any[];
+  members?: unknown[];
 }) {
   const { leagueInfo, teams, schedule, members = [] } = espnData;
 
   // Create a map of owner GUIDs to real names
   const ownerMap = new Map();
   members.forEach(member => {
-    if (member.id && (member.displayName || member.firstName || member.lastName)) {
-      const name = member.displayName || 
-        `${member.firstName || ''} ${member.lastName || ''}`.trim() || 
-        `Member ${member.id}`;
-      ownerMap.set(member.id, name);
+    const memberObj = member as { id?: string; displayName?: string; firstName?: string; lastName?: string };
+    if (memberObj.id && (memberObj.displayName || memberObj.firstName || memberObj.lastName)) {
+      const name = memberObj.displayName || 
+        `${memberObj.firstName || ''} ${memberObj.lastName || ''}`.trim() || 
+        `Member ${memberObj.id}`;
+      ownerMap.set(memberObj.id, name);
     }
   });
 
