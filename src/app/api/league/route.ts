@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { StatsService } from '@/lib/stats-service';
 import { mockTeams, mockMatchups, mockBoxScores, mockLeagueStats, mockLeagueInfo } from '@/lib/mock-data';
-// Removed unused imports: BoxScore, Matchup
+import { Matchup } from '@/types/fantasy';
 
 export async function GET(request: NextRequest) {
   try {
@@ -49,9 +49,9 @@ export async function GET(request: NextRequest) {
         });
 
         // Fetch data from multiple seasons (2018-2025) for complete league history
-        let allMatchups: any[] = [];
+        const allMatchups: Matchup[] = [];
         let allTeams = transformedData.teams;
-        const seasonsData: any[] = [];
+        const seasonsData: Array<{season: number; games: number; teams: number}> = [];
         const startYear = 2018;
         
         // Determine which seasons to fetch
