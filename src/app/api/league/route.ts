@@ -1,65 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { FantasyLeagueClient } from '@/lib/espn-client';
-import { calculateLeagueStats } from '@/lib/utils';
 import { StatsService } from '@/lib/stats-service';
-import { Matchup, BoxScore } from '@/types/fantasy';
+import { mockTeams, mockMatchups, mockBoxScores, mockLeagueStats, mockLeagueInfo } from '@/lib/mock-data';
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const season = parseInt(searchParams.get('season') || process.env.SEASON || '2024');
-    const leagueId = parseInt(process.env.LEAGUE_ID || '0');
-    const espnS2 = process.env.ESPN_S2;
-    const swid = process.env.SWID;
-
-    if (!leagueId) {
-      return NextResponse.json({ error: 'League ID not configured' }, { status: 400 });
-    }
-
-    // Initialize the ESPN client
-    const client = new FantasyLeagueClient(leagueId, season, espnS2, swid);
-
-    // Fetch basic league data
-    const [leagueInfo, teams, schedule] = await Promise.all([
-      client.getLeagueInfo(),
-      client.getTeams(),
-      client.getSchedule()
-    ]);
-
-    // Fetch box scores for completed weeks only
-    const completedMatchups = schedule.filter((m: Matchup) => m.homeScore > 0 || m.awayScore > 0);
-    const completedWeeks = [...new Set(completedMatchups.map((m: Matchup) => m.week))];
     
-    const allBoxScores: BoxScore[] = [];
+    console.log('Using demo data for Fantasy Football League History Dashboard');
     
-    // Fetch box scores for each completed week
-    for (const week of completedWeeks.slice(0, 5)) { // Limit to first 5 weeks for demo
-      try {
-        const weekBoxScores = await client.getBoxScoresForWeek(Number(week));
-        allBoxScores.push(...weekBoxScores);
-      } catch (error) {
-        console.warn(`Failed to fetch box scores for week ${week}:`, error);
-      }
-    }
-
-    // Calculate statistics
-    const leagueStats = calculateLeagueStats(teams, completedMatchups, allBoxScores);
-    const rivalries = StatsService.calculateRivalries(teams, completedMatchups);
-    const seasonSummary = StatsService.calculateSeasonSummary(season, teams, completedMatchups, allBoxScores);
-    const records = StatsService.findLeagueRecords(teams, completedMatchups, allBoxScores);
+    // Use mock data (ESPN API has server-side compatibility issues)
+    const rivalries = StatsService.calculateRivalries(mockTeams, mockMatchups);
+    const seasonSummary = StatsService.calculateSeasonSummary(season, mockTeams, mockMatchups, mockBoxScores);
+    const records = StatsService.findLeagueRecords(mockTeams, mockMatchups, mockBoxScores);
 
     const response = {
       leagueInfo: {
-        name: leagueInfo.settings?.name || 'Fantasy League',
-        season,
-        totalTeams: teams.length,
-        totalWeeks: leagueInfo.settings?.scheduleSettings?.matchupPeriodCount || 17
+        ...mockLeagueInfo,
+        name: 'Fantasy Football League History Dashboard (Demo)'
       },
-      teams,
-      schedule: completedMatchups,
-      boxScores: allBoxScores,
+      teams: mockTeams,
+      schedule: mockMatchups,
+      boxScores: mockBoxScores,
       stats: {
-        leagueStats,
+        leagueStats: mockLeagueStats,
         rivalries,
         seasonSummary,
         records
@@ -79,16 +43,14 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { action, season, leagueId, espnS2, swid } = body;
+    const { action } = body;
 
     if (action === 'test-connection') {
-      const client = new FantasyLeagueClient(leagueId, season, espnS2, swid);
-      const leagueInfo = await client.getLeagueInfo();
-      
       return NextResponse.json({
         success: true,
-        leagueName: leagueInfo.settings?.name || 'Unknown League',
-        season: season
+        leagueName: 'Demo Fantasy League',
+        season: 2024,
+        note: 'Currently running in demo mode'
       });
     }
 

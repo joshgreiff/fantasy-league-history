@@ -125,7 +125,7 @@ export class FantasyLeagueClient {
   // Helper method to get all weeks for a season
   async getAllBoxScores(): Promise<BoxScore[]> {
     const leagueInfo = await this.getLeagueInfo();
-    const totalWeeks = leagueInfo.settings.scheduleSettings.matchupPeriodCount;
+    const totalWeeks = leagueInfo.settings?.scheduleSettings?.matchupPeriodCount || 17;
     const allBoxScores: BoxScore[] = [];
 
     for (let week = 1; week <= totalWeeks; week++) {
