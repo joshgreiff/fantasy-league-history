@@ -1,12 +1,9 @@
 interface ESPNTeam {
   id: number;
-  location: string;
-  nickname: string;
+  name: string;
   abbrev: string;
-  owners: Array<{
-    firstName: string;
-    lastName: string;
-  }>;
+  owners: string[];
+  primaryOwner: string;
 }
 
 interface ESPNMatchup {
@@ -122,9 +119,9 @@ export function transformESPNData(espnData: {
   // Transform teams
   const transformedTeams = teams.map(team => ({
     id: team.id,
-    name: `${team.location || ''} ${team.nickname || ''}`.trim() || `Team ${team.id}`,
-    owner: team.owners?.[0] ? `${team.owners[0].firstName || ''} ${team.owners[0].lastName || ''}`.trim() : 'Unknown',
-    abbreviation: team.abbrev || team.nickname?.substring(0, 3).toUpperCase() || `T${team.id}`
+    name: team.name || `Team ${team.id}`,
+    owner: `Owner ${team.id}`, // ESPN doesn't provide owner names in basic API, just GUIDs
+    abbreviation: team.abbrev || team.name?.substring(0, 3).toUpperCase() || `T${team.id}`
   }));
 
   // Transform schedule - only include completed matchups with scores
