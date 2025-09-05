@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { StatsService } from '@/lib/stats-service';
 import { mockTeams, mockMatchups, mockBoxScores, mockLeagueStats, mockLeagueInfo } from '@/lib/mock-data';
-import { BoxScore, Matchup } from '@/types/fantasy';
+// Removed unused imports: BoxScore, Matchup
 
 export async function GET(request: NextRequest) {
   try {

@@ -51,13 +51,13 @@ export class DirectESPNClient {
     };
   }
 
-  private async makeRequest(endpoint: string, params: Record<string, any> = {}) {
+  private async makeRequest(endpoint: string, params: Record<string, unknown> = {}) {
     const url = new URL(this.baseUrl + endpoint);
     
     // Add query parameters
     Object.entries(params).forEach(([key, value]) => {
-      if (value !== undefined) {
-        url.searchParams.append(key, value.toString());
+      if (value !== undefined && value !== null) {
+        url.searchParams.append(key, String(value));
       }
     });
 
@@ -86,7 +86,7 @@ export class DirectESPNClient {
   }
 
   async getSchedule(weeks?: number[]): Promise<ESPNMatchup[]> {
-    const params: Record<string, any> = { view: 'mMatchup' };
+    const params: Record<string, unknown> = { view: 'mMatchup' };
     
     if (weeks && weeks.length > 0) {
       params.scoringPeriodId = weeks.join(',');
@@ -96,16 +96,16 @@ export class DirectESPNClient {
     return data.schedule || [];
   }
 
-  async getBoxScores(week: number): Promise<any[]> {
+  async getBoxScores(week: number): Promise<unknown[]> {
     const data = await this.makeRequest('', {
       view: 'mBoxscore',
       scoringPeriodId: week
     });
     
-    return data.schedule?.map((matchup: any) => ({
-      matchupId: matchup.id,
-      home: matchup.home,
-      away: matchup.away
+    return data.schedule?.map((matchup: unknown) => ({
+      matchupId: (matchup as { id: unknown }).id,
+      home: (matchup as { home: unknown }).home,
+      away: (matchup as { away: unknown }).away
     })) || [];
   }
 }
@@ -115,7 +115,7 @@ export function transformESPNData(espnData: {
   leagueInfo: ESPNLeagueInfo;
   teams: ESPNTeam[];
   schedule: ESPNMatchup[];
-  boxScores: any[];
+  boxScores: unknown[];
 }) {
   const { leagueInfo, teams, schedule } = espnData;
 
