@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { StatsService } from '@/lib/stats-service';
 import { mockTeams, mockMatchups, mockBoxScores, mockLeagueStats, mockLeagueInfo } from '@/lib/mock-data';
+import { BoxScore, Matchup } from '@/types/fantasy';
 
 export async function GET(request: NextRequest) {
   try {
@@ -31,10 +32,10 @@ export async function GET(request: NextRequest) {
         ]);
 
         // Fetch box scores for completed weeks only
-        const completedMatchups = schedule.filter((m: any) => m.homeScore > 0 || m.awayScore > 0);
-        const completedWeeks = [...new Set(completedMatchups.map((m: any) => m.week))];
+        const completedMatchups = schedule.filter((m) => m.homeScore > 0 || m.awayScore > 0);
+        const completedWeeks = [...new Set(completedMatchups.map((m) => m.week))];
         
-        const allBoxScores: any[] = [];
+        const allBoxScores: BoxScore[] = [];
         
         // Fetch box scores for each completed week (limit to avoid timeout)
         for (const week of completedWeeks.slice(0, 5)) {
