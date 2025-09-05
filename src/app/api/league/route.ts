@@ -6,7 +6,8 @@ import { mockTeams, mockMatchups, mockBoxScores, mockLeagueStats, mockLeagueInfo
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const season = parseInt(searchParams.get('season') || process.env.SEASON || '2024');
+    const season = parseInt(searchParams.get('season') || process.env.SEASON || '2025');
+    const specificSeasons = searchParams.get('seasons'); // e.g., "2023,2024" or "all"
     const leagueId = parseInt(process.env.LEAGUE_ID || '0');
     const espnS2 = process.env.ESPN_S2;
     const swid = process.env.SWID;
@@ -47,52 +48,88 @@ export async function GET(request: NextRequest) {
           boxScores: []
         });
 
-        // Use the already-filtered completed matchups from transformed data
-        let completedMatchups = transformedData.schedule;
-        let dataFromSeason = season;
+        // Fetch data from multiple seasons (2018-2025) for complete league history
+        let allMatchups: any[] = [];
+        let allTeams = transformedData.teams;
+        const seasonsData: any[] = [];
+        const startYear = 2018;
         
-        // If no games in current season, try to get data from previous season
-        if (completedMatchups.length === 0 && season >= 2024) {
-          console.log(`No games found in ${season}, trying ${season - 1}...`);
+        // Determine which seasons to fetch
+        let seasonsToFetch: number[] = [];
+        if (specificSeasons === 'all' || !specificSeasons) {
+          // Fetch all seasons from startYear to current season
+          for (let year = startYear; year <= season; year++) {
+            seasonsToFetch.push(year);
+          }
+        } else {
+          // Fetch specific seasons
+          seasonsToFetch = specificSeasons.split(',').map(s => parseInt(s.trim())).filter(y => y >= startYear && y <= season);
+        }
+        
+        console.log(`Fetching league history for seasons: ${seasonsToFetch.join(', ')}...`);
+        
+        // Fetch data from each requested season
+        for (const year of seasonsToFetch) {
           try {
-            const prevSeasonClient = new DirectESPNClient(leagueId, season - 1, espnS2, swid);
-            const [prevLeagueInfo, prevTeams, prevSchedule] = await Promise.all([
-              prevSeasonClient.getLeagueInfo(),
-              prevSeasonClient.getTeams(),
-              prevSeasonClient.getSchedule()
+            console.log(`Fetching ${year} season...`);
+            const yearClient = new DirectESPNClient(leagueId, year, espnS2, swid);
+            const [yearLeagueInfo, yearTeams, yearSchedule] = await Promise.all([
+              yearClient.getLeagueInfo(),
+              yearClient.getTeams(),
+              yearClient.getSchedule()
             ]);
 
-            const prevTransformedData = transformESPNData({
-              leagueInfo: prevLeagueInfo,
-              teams: prevTeams,
-              schedule: prevSchedule,
+            const yearTransformedData = transformESPNData({
+              leagueInfo: yearLeagueInfo,
+              teams: yearTeams,
+              schedule: yearSchedule,
               boxScores: []
             });
 
-            if (prevTransformedData.schedule.length > 0) {
-              console.log(`Found ${prevTransformedData.schedule.length} games from ${season - 1}`);
-              completedMatchups = prevTransformedData.schedule;
-              dataFromSeason = season - 1;
-              // Update teams with current season teams but use previous season's data for stats
+            if (yearTransformedData.schedule.length > 0) {
+              console.log(`✓ ${year}: Found ${yearTransformedData.schedule.length} games`);
+              allMatchups.push(...yearTransformedData.schedule);
+              seasonsData.push({
+                season: year,
+                games: yearTransformedData.schedule.length,
+                teams: yearTransformedData.teams.length
+              });
+            } else {
+              console.log(`✗ ${year}: No games found`);
             }
-          } catch (prevSeasonError) {
-            console.log(`Failed to get ${season - 1} data:`, prevSeasonError);
+            
+            // Use the most recent season's teams for current team names
+            if (year === season) {
+              allTeams = yearTransformedData.teams;
+            }
+          } catch (yearError) {
+            console.log(`✗ Failed to fetch ${year} data:`, yearError instanceof Error ? yearError.message : 'Unknown error');
           }
         }
+
+        console.log(`📊 Total games collected: ${allMatchups.length} across ${seasonsData.length} seasons`);
         
-        // Calculate statistics using the best available data
-        const leagueStats = calculateLeagueStats(transformedData.teams, completedMatchups, []);
+        // Sort matchups by season and week for chronological order
+        const completedMatchups = allMatchups.sort((a, b) => {
+          if (a.season !== b.season) return a.season - b.season;
+          return a.week - b.week;
+        });
+        
+        // Calculate statistics using all historical data
+        const leagueStats = calculateLeagueStats(allTeams, completedMatchups, []);
         const { StatsService } = await import('@/lib/stats-service');
-        const rivalries = StatsService.calculateRivalries(transformedData.teams, completedMatchups);
-        const seasonSummary = StatsService.calculateSeasonSummary(dataFromSeason, transformedData.teams, completedMatchups, []);
-        const records = StatsService.findLeagueRecords(transformedData.teams, completedMatchups, []);
+        const rivalries = StatsService.calculateRivalries(allTeams, completedMatchups);
+        const seasonSummary = StatsService.calculateSeasonSummary(season, allTeams, completedMatchups, []);
+        const records = StatsService.findLeagueRecords(allTeams, completedMatchups, []);
 
         const response = {
           leagueInfo: {
             ...transformedData.leagueInfo,
-            dataFromSeason: dataFromSeason !== season ? dataFromSeason : undefined
+            totalGamesAllTime: allMatchups.length,
+            seasonsData: seasonsData,
+            dataRange: `${startYear}-${season}`
           },
-          teams: transformedData.teams,
+          teams: allTeams,
           schedule: completedMatchups,
           boxScores: [],
           stats: {

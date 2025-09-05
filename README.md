@@ -79,8 +79,8 @@ A comprehensive web application to track and visualize your ESPN Fantasy Footbal
    - Your League ID is `123456`
 
 5. **Run the development server**
-   ```bash
-   npm run dev
+```bash
+npm run dev
    ```
 
 6. **Open your browser**
