@@ -26,51 +26,42 @@ export async function GET(request: NextRequest) {
       console.log('Attempting to use real ESPN data...');
       
       try {
-        // Dynamic import to avoid server-side issues
-        const { FantasyLeagueClient } = await import('@/lib/espn-client');
+        // Use direct ESPN API client instead of the problematic library
+        const { DirectESPNClient, transformESPNData } = await import('@/lib/espn-api-client');
         const { calculateLeagueStats } = await import('@/lib/utils');
         
-        const client = new FantasyLeagueClient(leagueId, season, espnS2, swid);
+        const client = new DirectESPNClient(leagueId, season, espnS2, swid);
 
-        // Fetch basic league data
+        // Fetch basic league data from ESPN
         const [leagueInfo, teams, schedule] = await Promise.all([
           client.getLeagueInfo(),
           client.getTeams(),
           client.getSchedule()
         ]);
 
-        // Fetch box scores for completed weeks only
-        const completedMatchups = schedule.filter((m) => m.homeScore > 0 || m.awayScore > 0);
-        const completedWeeks = [...new Set(completedMatchups.map((m) => m.week))];
-        
-        const allBoxScores: BoxScore[] = [];
-        
-        // Fetch box scores for each completed week (limit to avoid timeout)
-        for (const week of completedWeeks.slice(0, 5)) {
-          try {
-            const weekBoxScores = await client.getBoxScoresForWeek(Number(week));
-            allBoxScores.push(...weekBoxScores);
-          } catch (error) {
-            console.warn(`Failed to fetch box scores for week ${week}:`, error);
-          }
-        }
+        // Transform ESPN data to our format
+        const transformedData = transformESPNData({
+          leagueInfo,
+          teams,
+          schedule,
+          boxScores: []
+        });
 
-        // Calculate statistics
-        const leagueStats = calculateLeagueStats(teams, completedMatchups, allBoxScores);
-        const rivalries = StatsService.calculateRivalries(teams, completedMatchups);
-        const seasonSummary = StatsService.calculateSeasonSummary(season, teams, completedMatchups, allBoxScores);
-        const records = StatsService.findLeagueRecords(teams, completedMatchups, allBoxScores);
+        // Use the already-filtered completed matchups from transformed data
+        const completedMatchups = transformedData.schedule;
+        
+        // Calculate statistics using transformed data
+        const leagueStats = calculateLeagueStats(transformedData.teams, completedMatchups, []);
+        const { StatsService } = await import('@/lib/stats-service');
+        const rivalries = StatsService.calculateRivalries(transformedData.teams, completedMatchups);
+        const seasonSummary = StatsService.calculateSeasonSummary(season, transformedData.teams, completedMatchups, []);
+        const records = StatsService.findLeagueRecords(transformedData.teams, completedMatchups, []);
 
         const response = {
-          leagueInfo: {
-            name: leagueInfo.settings?.name || 'Fantasy League',
-            season,
-            totalTeams: teams.length,
-            totalWeeks: leagueInfo.settings?.scheduleSettings?.matchupPeriodCount || 17
-          },
-          teams,
+          leagueInfo: transformedData.leagueInfo,
+          teams: transformedData.teams,
           schedule: completedMatchups,
-          boxScores: allBoxScores,
+          boxScores: [],
           stats: {
             leagueStats,
             rivalries,
