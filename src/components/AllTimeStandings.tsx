@@ -30,7 +30,7 @@ export default function AllTimeStandings({ teams, stats }: AllTimeStandingsProps
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+          <CardTitle className="flex items-center gap-2 text-gray-900">
             <Trophy className="h-6 w-6 text-yellow-500" />
             All-Time Standings
           </CardTitle>
@@ -93,7 +93,7 @@ export default function AllTimeStandings({ teams, stats }: AllTimeStandingsProps
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg">
+            <CardTitle className="flex items-center gap-2 text-lg text-gray-900">
               <TrendingUp className="h-5 w-5 text-green-500" />
               Longest Win Streaks
             </CardTitle>
@@ -121,7 +121,7 @@ export default function AllTimeStandings({ teams, stats }: AllTimeStandingsProps
 
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg">
+            <CardTitle className="flex items-center gap-2 text-lg text-gray-900">
               <TrendingDown className="h-5 w-5 text-red-500" />
               Biggest Blowouts
             </CardTitle>
@@ -149,7 +149,7 @@ export default function AllTimeStandings({ teams, stats }: AllTimeStandingsProps
 
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg">
+            <CardTitle className="flex items-center gap-2 text-lg text-gray-900">
               <Target className="h-5 w-5 text-purple-500" />
               Points Left on Bench
             </CardTitle>

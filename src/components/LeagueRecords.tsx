@@ -65,10 +65,10 @@ export default function LeagueRecords({ records }: LeagueRecordsProps) {
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Award className="h-6 w-6 text-yellow-500" />
-            League Records
-          </CardTitle>
+                  <CardTitle className="flex items-center gap-2 text-gray-900">
+          <Award className="h-6 w-6 text-yellow-500" />
+          League Records
+        </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">

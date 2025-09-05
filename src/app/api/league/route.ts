@@ -6,10 +6,81 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const season = parseInt(searchParams.get('season') || process.env.SEASON || '2024');
+    const leagueId = parseInt(process.env.LEAGUE_ID || '0');
+    const espnS2 = process.env.ESPN_S2;
+    const swid = process.env.SWID;
+
+    // Check if we have real ESPN credentials
+    const hasESPNCredentials = leagueId && espnS2 && swid;
+
+    if (hasESPNCredentials) {
+      console.log('Attempting to use real ESPN data...');
+      
+      try {
+        // Dynamic import to avoid server-side issues
+        const { FantasyLeagueClient } = await import('@/lib/espn-client');
+        const { calculateLeagueStats } = await import('@/lib/utils');
+        
+        const client = new FantasyLeagueClient(leagueId, season, espnS2, swid);
+
+        // Fetch basic league data
+        const [leagueInfo, teams, schedule] = await Promise.all([
+          client.getLeagueInfo(),
+          client.getTeams(),
+          client.getSchedule()
+        ]);
+
+        // Fetch box scores for completed weeks only
+        const completedMatchups = schedule.filter((m: any) => m.homeScore > 0 || m.awayScore > 0);
+        const completedWeeks = [...new Set(completedMatchups.map((m: any) => m.week))];
+        
+        const allBoxScores: any[] = [];
+        
+        // Fetch box scores for each completed week (limit to avoid timeout)
+        for (const week of completedWeeks.slice(0, 5)) {
+          try {
+            const weekBoxScores = await client.getBoxScoresForWeek(Number(week));
+            allBoxScores.push(...weekBoxScores);
+          } catch (error) {
+            console.warn(`Failed to fetch box scores for week ${week}:`, error);
+          }
+        }
+
+        // Calculate statistics
+        const leagueStats = calculateLeagueStats(teams, completedMatchups, allBoxScores);
+        const rivalries = StatsService.calculateRivalries(teams, completedMatchups);
+        const seasonSummary = StatsService.calculateSeasonSummary(season, teams, completedMatchups, allBoxScores);
+        const records = StatsService.findLeagueRecords(teams, completedMatchups, allBoxScores);
+
+        const response = {
+          leagueInfo: {
+            name: leagueInfo.settings?.name || 'Fantasy League',
+            season,
+            totalTeams: teams.length,
+            totalWeeks: leagueInfo.settings?.scheduleSettings?.matchupPeriodCount || 17
+          },
+          teams,
+          schedule: completedMatchups,
+          boxScores: allBoxScores,
+          stats: {
+            leagueStats,
+            rivalries,
+            seasonSummary,
+            records
+          }
+        };
+
+        console.log('Successfully loaded real ESPN data!');
+        return NextResponse.json(response);
+      } catch (espnError) {
+        console.error('ESPN API failed, falling back to demo data:', espnError);
+        // Fall through to demo data
+      }
+    }
+
+    console.log('Using demo data - no ESPN credentials provided or ESPN API failed');
     
-    console.log('Using demo data for Fantasy Football League History Dashboard');
-    
-    // Use mock data (ESPN API has server-side compatibility issues)
+    // Use mock data fallback
     const rivalries = StatsService.calculateRivalries(mockTeams, mockMatchups);
     const seasonSummary = StatsService.calculateSeasonSummary(season, mockTeams, mockMatchups, mockBoxScores);
     const records = StatsService.findLeagueRecords(mockTeams, mockMatchups, mockBoxScores);
@@ -17,7 +88,9 @@ export async function GET(request: NextRequest) {
     const response = {
       leagueInfo: {
         ...mockLeagueInfo,
-        name: 'Fantasy Football League History Dashboard (Demo)'
+        name: hasESPNCredentials 
+          ? 'Fantasy Football League History Dashboard (ESPN API Error)'
+          : 'Fantasy Football League History Dashboard (Demo)'
       },
       teams: mockTeams,
       schedule: mockMatchups,
